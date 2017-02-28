@@ -9,16 +9,25 @@
     objectValidator.$inject = [];
 
     function objectValidator() {
-        var _strictMode = true;
+
+        var _config = {
+            checkProto: true,
+            matchPropertyCount: true
+        };
+        var _configModel = {
+            checkProto: true,
+            matchPropertyCount: false
+        };
+
         var _classes = {};
 
         var service = {
             test: test,
             type: type,
-            setStrictMode:setStrictMode,
+            config: config,
             getClass: getClass,
             addClass: addClass,
-            removeclass:removeclass,
+            removeclass: removeclass,
             getAllClasses: getAllClasses,
             removeAllClasses: removeAllClasses
 
@@ -26,51 +35,95 @@
         return service;
 
         function test(className, testTarget) {
-            var strictMode = _strictMode;
+
             var isValid = true;
             if (type(testTarget) != "Object" || type(className) != "String") {
-                console.error("Validate object must receive 2 objects and an optional 'strict mode' boolean");
+                console.error("Validate object must receive a class name and an object");
                 return false;
             }
 
             var model = getClass(className);
 
-            //test that number of properties are the same
-            if (Object.keys(testTarget).length != Object.keys(model).length) return false;
-
-            return checkObjects(testTarget, model, strictMode);
+            return checkObjects(testTarget, model);
         }
-        function checkObjects(testTarget, model, strictMode) {
+        function checkObjects(testTarget, model) {
             var isValid = true;
-            var count = 0;
-            for (var property in model) {
-                if (model.hasOwnProperty(property)) {
-                    var targetProperty = Object.keys(testTarget)[count];
-                    var targetPropertyType = type(testTarget[Object.keys(testTarget)[count]]);
-                    var modelPropertyType = type(model[property]);
+            debugger;
+            //test that number of properties are correct
+            if (_config.checkProto) {
+                if (propCount(testTarget) < propCount(model)) return false;
+            } else {
+                if (Object.keys(testTarget).length < Object.keys(model).length) return false;
+            }
 
-                    //check property names are same
-                    if (strictMode) {
-                        if (targetProperty !== property) {
-                            isValid = false;
-                            break;
+
+            if (_config.matchPropertyCount) {
+                if (_config.checkProto) {
+                    if (propCount(testTarget) != propCount(model)) return false;
+                } else {
+                    if (Object.keys(testTarget).length != Object.keys(model).length) return false;
+                }
+
+            }
+           
+            var count = 0;
+            for (var modelProp in model) {
+
+                if (!_config.checkProto) {
+                    if (!model.hasOwnProperty(modelProp)) {
+                        count++;
+                        continue;
+                    }
+                }
+                var modelPropertyName = modelProp;
+                var modelProperty = model[modelProp];
+
+
+
+                var countTarget = 0;
+                var propertyExists = false;
+                for (var targetProp in testTarget) {
+
+                    if (!_config.checkProto) {
+                        if (!testTarget.hasOwnProperty(targetProp)) {
+                            countTarget++;
+                            continue;
                         }
                     }
+                    var targetPropertyName = targetProp;
+                    var targetProperty = testTarget[targetProp];
 
-                    //make sure types are the same
-                    if (targetPropertyType !== modelPropertyType) {
-                        isValid = false;
+                    if (modelPropertyName == targetPropertyName) {
+
+                        propertyExists = true;
+
+                        //make sure types are the same
+                        if (type(modelProperty) !== type(targetProperty)) {
+
+                            isValid = false;
+                        } else if (type(targetProperty) == "Object") {
+                            isValid = checkObjects(targetProperty, modelProperty);
+                        }
                         break;
                     }
-
-                    if (targetPropertyType == "Object") {
-                        isValid = checkObjects(testTarget[Object.keys(testTarget)[count]], model[property], strictMode);
-                    }
-
-                    count++;
+                    countTarget++;
                 }
+                if (!propertyExists) {
+                    isValid = false;
+                }
+
+                count++;
+
             }
             return isValid;
+        }
+
+        function propCount(obj) {
+            var count = 0;
+            for (var x in obj) {
+                count++;
+            }
+            return count;
         }
         function type(val) {
             if (angular.isUndefined(val)) return "Undefined";
@@ -85,11 +138,27 @@
             if (angular.isDefined(val)) return "Defined";
             return null;
         }
-        function setStrictMode(val) {
-            if (type(val) != "Boolean") {
-                console.error("Must use boolean to set strict mode");
+        function config(val) {
+            if (type(val) == "Object") {
+
+                var valueSet = false;
+
+                if (type(val.checkProto) == "Boolean") {
+                    _config.checkProto = val.checkProto;
+                    valueSet = true;
+                }
+                if (type(val.matchPropertyCount) == "Boolean") {
+                    _config.matchPropertyCount = val.matchPropertyCount;
+                    valueSet = true;
+                }
+                if (!valueSet) {
+                    console.error("Invalid config object");
+                }
+
+
             } else {
-                _strictMode = val;
+                console.error("Must use object to set config");
+                _config = _configModel;
             }
         }
 
@@ -100,7 +169,7 @@
             } else {
                 return _classes[name];
             }
-        }       
+        }
         function addClass(name, obj) {
             if (type(name) == "String" && type(obj) == "Object") {
                 _classes[name] = obj;
@@ -109,18 +178,18 @@
             }
 
         }
-        function removeclass(name){
-             if (type(name) == "String") {
-               delete _classes[name];
+        function removeclass(name) {
+            if (type(name) == "String") {
+                delete _classes[name];
             } else {
                 console.error("Must use string to remove class");
             }
         }
-        function getAllClasses(){
+        function getAllClasses() {
             return _classes;
         }
-        function removeAllClasses(){
-           _classes = {};          
+        function removeAllClasses() {
+            _classes = {};
         }
     }
 })();

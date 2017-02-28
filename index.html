@@ -29,46 +29,49 @@
                 blah: []
             }
         });
-        objectValidator.addClass("Test5", {
-            test: "",
+       objectValidator.addClass("Test5", {
             test2: {
                 blah: {
-                    test: "",
-                    test2: {
-                        blah: []
-                    }
+                    something:[],
+                    somethingElse:0,
+                    aaa: true
                 }
-            }
+            },
+            test: ""
+           
         });
-        objectValidator.addClass("Test6", { test: "" });
+
+        objectValidator.addClass("Test6", {
+            test1: "",
+            test2:[],
+            test3:true
+        });
         objectValidator.addClass("Test7", {
-            test: "",
-            test2: {
-                blah: []
-            }
+            test1: "",
+            test2:[],
+            test3:true,
+            test4:{}
         });
-        objectValidator.addClass("Test8", {
-            test: "",
-            test2: {
-                blah: {
-                    test: "",
-                    test2: {
-                        blah: []
-                    }
+        objectValidator.addClass("Test8",{
+            something:"",
+            somethingElse:[]
+
+        });
+        objectValidator.addClass("Test9",{
+            something:"",
+            somethingElse:{
+                test1:"",
+                test2:{
+                    thirdLevel:[]
                 }
             }
+
         });
 
-        //----------------TESTING---------------------
-        objectValidator.setStrictMode(true);
+        //----------------TESTING FULL OPTIONS----------------
 
-        //Test 1
         test(objectValidator.test("Test1", { result: {} }), true);
-
-        //Test 2
         test(objectValidator.test("Test2", {}), true);
-
-
         test(objectValidator.test("Test3", { test: [] }), false);
         test(objectValidator.test(
             "Test4",
@@ -78,47 +81,83 @@
                     blah: []
                 }
             }), true);
-        test(objectValidator.test(
-            "Test5", {
-                test: "",
-                something: {
-                    blah: { test: "", test2: { blah: [] } }
+        test(objectValidator.test("Test5",{          
+            test: "",
+            test2: {
+                blah: {
+                    something:[],
+                    aaa: true,
+                    somethingElse:0
                 }
-            }), false);
+            },
+           
+        } ), true);
 
-        //Strict mode false
-        objectValidator.setStrictMode(false);
+        test(objectValidator.test("Test6", {
+            test1: "",
+            test2:[],
+            test3:{}
+        }),false);
 
-        test(objectValidator.test("Test6", { test: [] }), false);
+        //----------------TESTING MATCH PROPERTY COUNT----------------     
+        test(objectValidator.test("Test7",{
+            test1: "",
+            test2:[],
+            test3:true,
+            test4:{},
+            test5:"something",
+            test6:{}
+        }), false);
+        test(objectValidator.test("Test7",{
+            test1: "",
+            test2:[]
+        }), false);
+        objectValidator.config({matchPropertyCount: false});
+        test(objectValidator.test("Test7",{
+            test1: "",
+            test2:[],
+            test3:true,
+            test4:{},
+            test5:"something",
+            test6:{}
+        }), true);
+         //----------------TESTING MATCH PROPERTY COUNT----------------
+         function test8() {
+                this.something = "blah";
+         }
+         test8.prototype = {somethingElse: []};
+         test(objectValidator.test("Test8", new test8()), true);
+         objectValidator.config({checkProto: false, matchPropertyCount: true});
+         test(objectValidator.test("Test8", new test8()), false);
+         objectValidator.config({checkProto: true, matchPropertyCount: true});
 
-        test(objectValidator.test(
-            "Test7",
-            {
-                test: "",
-                something: {
-                    blah: []
-                }
-            }), true);
+         function test9_level3(){
+             this.thirdLevel = [];               
+         }
+         function test9_level2(){
+              this.test1 = "";
+                this.test2 = new test9_level3();
+         }
+          
+          function test9() {
+                this.something = "blah";
+                this.somethingElse = new test9_level2();
+         }
+        
+        
 
-        test(objectValidator.test(
-            "Test8",
-            {
-                test: "",
-                something: {
-                    blah: {
-                        test: "",
-                        test2: {
-                            blah: []
-                        }
-                    }
-                }
-            }), true);
+         test(objectValidator.test("Test9", new test9()), true);
 
-        console.log(vm.testResults);
+         console.log(vm.testResults);
+
     }
 
     function test(actual, expected) {
-        vm.testResults.push({ expected: expected, actual: actual });
+        var color = "green";
+        if(actual != expected){
+            color = "red";
+        }
+        vm.testResults.push({ expected: expected, actual: actual, color:color });
     }
 
 
@@ -131,7 +170,7 @@
     <div ng-app="ValidatorTest">
         <div ng-controller="Test as vm">
             <div ng-repeat="result in vm.testResults">
-                <span>Test number {{$index + 1}} should be <b>{{result.expected}}</b>. Actual result: <b>{{result.actual}}</b></span>
+                <span ng-style="{color: result.color}">Test number {{$index + 1}} should be <b>{{result.expected}}</b>. Actual result: <b>{{result.actual}}</b></span>
             </div>
         </div>
     </div>
