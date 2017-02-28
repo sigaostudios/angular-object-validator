@@ -1,0 +1,23 @@
+{
+  "name": "angular-object-validator",
+  "private": false,
+  "authors": [
+    "Brandon Bosco <brandon@sigaostudios.com>"
+  ],
+  "description": "AngularJS validation utilities",
+  "main": "build/ObjectValidator.js",
+  "dependencies": {
+    "angular-types": "^0.2.0"
+  },
+    "keywords": [
+    "angular",
+    "angularjs",
+    "type",
+    "types",
+    "checking",
+    "validation",
+    "object"
+  ],
+  "license": "MIT",
+  "overrides": {}
+}

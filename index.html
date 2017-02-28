@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script type='text/javascript' src="bower_components/angular/angular.js"></script>
+    <script type='text/javascript' src="bower_components/angular-types/types.js"></script>
+
+    <script type='text/javascript' src="dist/ObjectValidator.js"></script>
+    <script> 
+    angular.module('ValidatorTest', ['ObjectValidator']).controller('Test', ['objectValidator', function (objectValidator) {
+
+    var vm = {
+        testResults: []
+    };
+
+    Activate();
+    return vm;
+
+    function Activate() {
+        //Loading classes
+        objectValidator.addClass("Test1", {
+            result: {}
+        });
+        objectValidator.addClass("Test2", {});
+        objectValidator.addClass("Test3", { test1: "" });
+        objectValidator.addClass("Test4", {
+            test: "",
+            test2: {
+                blah: []
+            }
+        });
+        objectValidator.addClass("Test5", {
+            test: "",
+            test2: {
+                blah: {
+                    test: "",
+                    test2: {
+                        blah: []
+                    }
+                }
+            }
+        });
+        objectValidator.addClass("Test6", { test: "" });
+        objectValidator.addClass("Test7", {
+            test: "",
+            test2: {
+                blah: []
+            }
+        });
+        objectValidator.addClass("Test8", {
+            test: "",
+            test2: {
+                blah: {
+                    test: "",
+                    test2: {
+                        blah: []
+                    }
+                }
+            }
+        });
+
+        //----------------TESTING---------------------
+        objectValidator.setStrictMode(true);
+
+        //Test 1
+        test(objectValidator.test("Test1", { result: {} }), true);
+
+        //Test 2
+        test(objectValidator.test("Test2", {}), true);
+
+
+        test(objectValidator.test("Test3", { test: [] }), false);
+        test(objectValidator.test(
+            "Test4",
+            {
+                test: "",
+                test2: {
+                    blah: []
+                }
+            }), true);
+        test(objectValidator.test(
+            "Test5", {
+                test: "",
+                something: {
+                    blah: { test: "", test2: { blah: [] } }
+                }
+            }), false);
+
+        //Strict mode false
+        objectValidator.setStrictMode(false);
+
+        test(objectValidator.test("Test6", { test: [] }), false);
+
+        test(objectValidator.test(
+            "Test7",
+            {
+                test: "",
+                something: {
+                    blah: []
+                }
+            }), true);
+
+        test(objectValidator.test(
+            "Test8",
+            {
+                test: "",
+                something: {
+                    blah: {
+                        test: "",
+                        test2: {
+                            blah: []
+                        }
+                    }
+                }
+            }), true);
+
+        console.log(vm.testResults);
+    }
+
+    function test(actual, expected) {
+        vm.testResults.push({ expected: expected, actual: actual });
+    }
+
+
+}]);
+    
+    </script>
+</head>
+
+<body>
+    <div ng-app="ValidatorTest">
+        <div ng-controller="Test as vm">
+            <div ng-repeat="result in vm.testResults">
+                <span>Test number {{$index + 1}} should be <b>{{result.expected}}</b>. Actual result: <b>{{result.actual}}</b></span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
