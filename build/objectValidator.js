@@ -14,7 +14,7 @@
             setStrictMode:setStrictMode,
             getClass: getClass,
             addClass: addClass,
-            removeClass:removeClass,
+            removeclass:removeclass,
             getAllClasses: getAllClasses,
             removeAllClasses: removeAllClasses
 

@@ -18,9 +18,9 @@
             setStrictMode:setStrictMode,
             getClass: getClass,
             addClass: addClass,
-            removeClass:removeClass,
+            removeclass:removeclass,
             getAllClasses: getAllClasses,
-            clearAllClasses: clearAllClasses
+            removeAllClasses: removeAllClasses
 
         }
         return service;
@@ -119,7 +119,7 @@
         function getAllClasses(){
             return _classes;
         }
-        function clearAllClasses(){
+        function removeAllClasses(){
            _classes = {};          
         }
     }

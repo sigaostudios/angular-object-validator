@@ -5,7 +5,7 @@
     "Brandon Bosco <brandon@sigaostudios.com>"
   ],
   "description": "AngularJS validation utilities",
-  "main": "build/ObjectValidator.js",
+  "main": "dist/angular-object-validator.js",
   "dependencies": {
     "angular-types": "^0.2.0"
   },

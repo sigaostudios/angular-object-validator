@@ -13,7 +13,7 @@ gulp.task('js', function () {
      .pipe(plugins.order([
      '*.module.js',
     ]))
-    .pipe(plugins.concat('ObjectValidator.js'))
+    .pipe(plugins.concat('angular-object-validator.js'))
     .pipe(plugins.minify({
         ext: {
             src: '.js',
