@@ -48,7 +48,7 @@
         }
         function checkObjects(testTarget, model) {
             var isValid = true;
-            debugger;
+
             //test that number of properties are correct
             if (_config.checkProto) {
                 if (propCount(testTarget) < propCount(model)) return false;
