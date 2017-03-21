@@ -18,6 +18,7 @@
     "validation",
     "object"
   ],
+  "homepage":"https://github.com/sigaostudios/angular-object-validator",
   "license": "MIT",
   "overrides": {}
 }
